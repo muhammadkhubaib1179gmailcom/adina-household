@@ -1,0 +1,28 @@
+# Explicitly keep secrets and local data out of the Vercel upload.
+# Without this, Vercel falls back to .gitignore — these are the files that must
+# never leave the machine regardless of how that fallback behaves.
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Local SQLite databases (contain private order + customer data)
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Generated / build output
+.next
+node_modules
+tsconfig.tsbuildinfo
+dev.log
+*.log
+scraped-products.json
+
+# Repo-only metadata
+.git
+.github
+.vercel
