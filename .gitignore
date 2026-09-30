@@ -39,3 +39,20 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local development logs
+dev.log
+*.log
+
+# local sqlite databases (contain private local order/product data)
+/*.db
+/*.db-journal
+/*.db-shm
+/*.db-wal
+/prisma/*.db
+/prisma/*.db-journal
+/prisma/*.db-shm
+/prisma/*.db-wal
+
+# output of the instagram scraper script (generated)
+/scraped-products.json

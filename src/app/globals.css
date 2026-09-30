@@ -1,26 +1,148 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Brand colors - maroon/purple theme */
+  --color-maroon: #6b2e4f;
+  --color-maroon-dark: #5a2442;
+  --color-maroon-light: #8a4a6b;
+  --color-plum: #3d1f2e;
+  --color-rose: #c4a29e;
+  --color-rose-light: #e2d3cf;
+  --color-cream: #f8f4f0;
+  --color-cream-light: #faf7f3;
+  --color-gold: #d4af37;
+  --color-gold-dark: #c19a2e;
+  --color-success: #4a7c59;
+  --color-danger: #b94a48;
+  --color-ink: #3d1f2e;
+  --color-ink-soft: #6b5f5f;
+  --color-line: #e8e4df;
+
+  /* Admin palette - red-orange smoothy x blue-green lagoon */
+  --color-coral-50: #fef2ef;
+  --color-coral-100: #fde3dd;
+  --color-coral-200: #fbc9bd;
+  --color-coral-300: #f8a08c;
+  --color-coral-400: #f47a62;
+  --color-coral-500: #f05a42;
+  --color-coral-600: #d94630;
+  --color-coral-700: #b53a2b;
+  --color-lagoon-50: #eefbfa;
+  --color-lagoon-100: #d5f4f2;
+  --color-lagoon-200: #abe9e6;
+  --color-lagoon-300: #79d7d3;
+  --color-lagoon-400: #3fbab6;
+  --color-lagoon-500: #21a09c;
+  --color-lagoon-600: #17827f;
+  --color-lagoon-700: #146a69;
+  --color-lagoon-800: #134e4e;
+  --color-lagoon-900: #0e3b3e;
+
+  /* Fonts */
+  --font-serif: var(--font-cormorant);
+  --font-sans: var(--font-inter);
+  --font-urdu: var(--font-urdu);
+
+  /* Animations */
+  --animate-float-slow: float 6s ease-in-out infinite;
+  --animate-float-slower: float 8s ease-in-out infinite;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(4deg);
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Urdu typography - bold + attractive */
+[dir="rtl"] body {
+  font-family: var(--font-urdu);
+}
+
+.font-urdu {
+  font-family: var(--font-urdu);
+  font-weight: 700;
+  line-height: 1.9;
+  letter-spacing: 0.01em;
+}
+
+.heading-urdu {
+  font-family: var(--font-urdu);
+  font-weight: 700;
+  font-size: 1.15em;
+  line-height: 1.7;
+}
+
+/* Elegant serif headings */
+h1,
+h2,
+h3,
+h4,
+.font-serif-display {
+  font-family: var(--font-serif);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-cream);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-rose);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-maroon);
+}
+
+::selection {
+  background: var(--color-maroon);
+  color: white;
+}
+
+/* Hide scrollbar for horizontal carousels */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Skeleton shimmer */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-cream) 25%,
+    var(--color-rose-light) 50%,
+    var(--color-cream) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

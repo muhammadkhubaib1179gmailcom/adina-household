@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  nameUrdu  String
+  image     String
+  createdAt DateTime @default(now())
+
+  products Product[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  nameUrdu    String
+  description String
+  descriptionUrdu String
+  image       String
+  price       Float
+  salePrice   Float?
+  stock       Int      @default(10)
+  featured    Boolean  @default(false)
+  badges      String   @default("") // comma-separated: NEW,SALE,BESTSELLER
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime @default(now())
+
+  variants     ProductVariant[]
+  orderItems   OrderItem[]
+}
+
+model ProductVariant {
+  id          String  @id @default(cuid())
+  productId   String
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  title       String
+  titleUrdu   String
+  price       Float
+  stock       Int     @default(10)
+  image       String?
+}
+
+model Order {
+  id            String   @id @default(cuid())
+  orderNumber   String   @unique
+  fullName      String
+  phone         String
+  email         String?
+  city          String
+  address       String
+  paymentMethod String
+  subtotal      Float
+  deliveryCharge Float
+  total         Float
+  status        String   @default("pending") // pending | confirmed | shipped | delivered | cancelled
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id            String   @id @default(cuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id])
+  productName   String
+  variantTitle  String
+  price         Float
+  quantity      Int
+  image         String?
+}
+
+model DeliveryCharge {
+  id    String @id @default(cuid())
+  city  String @unique
+  charge Float
+}
