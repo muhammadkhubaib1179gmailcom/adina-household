@@ -56,3 +56,6 @@ dev.log
 
 # output of the instagram scraper script (generated)
 /scraped-products.json
+
+.vercel
+.env*

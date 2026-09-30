@@ -3,16 +3,43 @@ import path from "path"
 
 const DB_PATH = path.join(process.cwd(), "adina.db")
 
-let db: DatabaseSync
+let db: DatabaseSync | null = null
+let dbUnavailable = false
 
 function getDb(): DatabaseSync {
+  if (dbUnavailable) {
+    throw new Error("Database unavailable")
+  }
   if (!db) {
-    db = new DatabaseSync(DB_PATH)
-    db.exec("PRAGMA journal_mode = WAL")
-    db.exec("PRAGMA foreign_keys = ON")
-    seedDb(db)
+    try {
+      const opened = new DatabaseSync(DB_PATH)
+      opened.exec("PRAGMA journal_mode = WAL")
+      opened.exec("PRAGMA foreign_keys = ON")
+      seedDb(opened)
+      db = opened
+    } catch {
+      // Read-only or missing filesystem (e.g. serverless), or no local db file.
+      // Latch so we only attempt this once per process.
+      dbUnavailable = true
+      db = null
+      throw new Error("Database unavailable")
+    }
   }
   return db
+}
+
+/**
+ * True when the local SQLite database can be opened. On hosts without a
+ * persistent writable filesystem this is false, and the app runs in
+ * catalog-only mode instead of failing every request.
+ */
+export function isDatabaseAvailable(): boolean {
+  try {
+    getDb()
+    return true
+  } catch {
+    return false
+  }
 }
 
 function ensureColumn(database: DatabaseSync, table: string, column: string, definition: string) {
@@ -205,7 +232,12 @@ export function createOrder(input: CreateOrderInput): OrderRecord {
 }
 
 export function getOrder(idOrNumber: string): (OrderRecord & { items: OrderItemRecord[] }) | null {
-  const database = getDb()
+  let database: DatabaseSync
+  try {
+    database = getDb()
+  } catch {
+    return null
+  }
   const order = database.prepare(
     "SELECT * FROM orders WHERE id = ? OR order_number = ?"
   ).get(idOrNumber, idOrNumber) as unknown as OrderRecord | undefined
@@ -220,7 +252,12 @@ export function getOrder(idOrNumber: string): (OrderRecord & { items: OrderItemR
 }
 
 export function listOrders(status?: string, limit = 50, offset = 0): OrderRecord[] {
-  const database = getDb()
+  let database: DatabaseSync
+  try {
+    database = getDb()
+  } catch {
+    return []
+  }
   if (status) {
     return database.prepare(
       "SELECT * FROM orders WHERE status = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
@@ -276,7 +313,13 @@ export function updateOrderPayment(
 }
 
 export function getDashboardStats() {
-  const database = getDb()
+  const empty = { total: 0, pending: 0, confirmed: 0, shipped: 0, delivered: 0, revenue: 0 }
+  let database: DatabaseSync
+  try {
+    database = getDb()
+  } catch {
+    return empty
+  }
   const total = (database.prepare("SELECT COUNT(*) as c FROM orders").get() as { c: number }).c
   const pending = (database.prepare("SELECT COUNT(*) as c FROM orders WHERE status = 'pending'").get() as { c: number }).c
   const confirmed = (database.prepare("SELECT COUNT(*) as c FROM orders WHERE status = 'confirmed'").get() as { c: number }).c

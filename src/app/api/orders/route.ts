@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createOrder, getOrder, listOrders } from "@/lib/db"
+import { createOrder, getOrder, listOrders, isDatabaseAvailable } from "@/lib/db"
 import { sendNewOrderAlert } from "@/lib/notify"
 
 export async function POST(req: NextRequest) {
@@ -9,6 +9,13 @@ export async function POST(req: NextRequest) {
 
     if (!fullName || !phone || !city || !address || !paymentMethod || !items?.length) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    }
+
+    if (!isDatabaseAvailable()) {
+      return NextResponse.json(
+        { error: "Order storage is not available in this environment." },
+        { status: 503 },
+      )
     }
 
     const order = createOrder({
