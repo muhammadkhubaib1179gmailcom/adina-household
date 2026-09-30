@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    await createAdminSession(password)
+    await createAdminSession()
     console.log("Session created successfully")
     return NextResponse.json({ ok: true })
   } catch (err) {
